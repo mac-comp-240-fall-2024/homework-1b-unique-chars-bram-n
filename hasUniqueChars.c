@@ -1,9 +1,10 @@
 /*
  * hasUniqueChars.c
  * 
- * TODO: replace this line with lines containing a description
+ * Given a string of characters, which are encoded in ascii, 
+ * determine if the string contains all unique characters.
  * 
- * Author: 
+ * Author: Bram Nutt
  */
 
 #include <stdio.h>  // fprintf, printf
@@ -12,6 +13,7 @@
 #include <ctype.h>  //useful character operations
 #include <stdbool.h>  // to define a boolean type and true, false
                       // see https://en.wikibooks.org/wiki/C_Programming/stdbool.h
+
 
 #include "binary_convert.h"
 
@@ -31,9 +33,6 @@ void seeBits(unsigned long value, char *debug_text) {
   
 }
 
-
-// TODO: Read this carefully to see how to loop over characters of a string
-// TODO: (Remove TODOs once you have completed the task they describe)
 /*
  * Given an input string of chars, check for any non-printing
  * characters and print an error and exit if the string has any.
@@ -53,10 +52,11 @@ void checkInvalid(char * inputStr) {
   }
 }
 
-
 /*
- * TODO: Replace this code by a good description this function takes in, does and returns.
- * Include the error conditions that cause it to exit with failure.
+ * Description: This function takes a string as input, checks if it is invalid
+ * and determines whether the characters in the string are unique, ignoring spaces.
+ * It uses two unsigned long variables as bit vectors to efficiently keep track
+ * of seen characters. 
  */
 bool hasUniqueChars(char * inputStr) {
   // bail out quickly if any invalid characters
@@ -70,45 +70,36 @@ bool hasUniqueChars(char * inputStr) {
   unsigned long checkBitsexcl_amp =0;  // for checking ! though @ 
 
   char nextChar;         // next character in string to check
-
-  // -------------------------------------------------------------
-  // This section contains code to display the initial values of checkBitsA_z
-  // and checkBitsexcl_amp, for debugging purposes. 
-  // It also illustrates how to use the seeBits function for debugging.
-  // Printed values should initially be all zeros
-  // TODO: remove or comment out this code when satisfied of function correctness
-  
-  char debug_str_A_z[128];
-  strcpy(debug_str_A_z, "checkBitsA_z before: \n");
-  seeBits(checkBitsA_z, debug_str_A_z);
-  
-  char debug_str_excl_amp[128];
-  strcpy(debug_str_excl_amp, "checkBitsexcl_amp before: \n");
-  seeBits(checkBitsexcl_amp, debug_str_excl_amp);
-  // -------------------------------------------------------------
-
-  // TODO: Declare additional variables you need here
-
+  unsigned long currentChar = 1;
   
   for(i = 0; i < strlen(inputStr); i++) {
     nextChar = inputStr[i];
-    // TODO: Add your code here to check nextChar, see if it is a duplicate, and update the checkBits variables
 
-    // -------------------------------------------------------------
-    // Below this are examples of debugging print statements you could use
-    // Move/use as makes sense for you!
-    // Modify to work on checkBitsexcl_amp
-    // TODO: Comment out or remove when your function works correctly
-    printf("nextchar int value: %d\n", nextChar);
-    char char_str[2] = "\0";
-    char_str[0] = nextChar;
-    strcpy(debug_str_A_z, "nextchar: ");
-    strcat(debug_str_A_z, char_str);
-    strcat(debug_str_A_z,", checkBitsA_z: \n");
-    seeBits(checkBitsA_z, debug_str_A_z);
-    // ------------------------------------------------------------- 
+    if (nextChar == ' ') {
+            continue;
+        }
+        
+    if (nextChar > 64){
+      currentChar = currentChar << (nextChar-65);
+      if ((checkBitsA_z & currentChar) != 0) {
+        return false;
+      }
+      else{
+        checkBitsA_z = checkBitsA_z | currentChar;
+        currentChar = 1;
+      }
+    }
+    else{
+      currentChar = currentChar << (nextChar-33);
+      if ((checkBitsexcl_amp & currentChar) != 0){
+        return false;
+      }
+      else {
+        checkBitsexcl_amp = checkBitsexcl_amp | currentChar;
+        currentChar = 1;
+      }
+    }
   }
-
   // if through all the characters, then no duplicates found
   return true;
   
